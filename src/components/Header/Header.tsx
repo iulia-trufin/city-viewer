@@ -1,4 +1,5 @@
-import { AppBar, Toolbar, Typography } from "@mui/material";
+import { AppBar, Stack, Toolbar, Typography } from "@mui/material";
+import PublicOutlinedIcon from "@mui/icons-material/PublicOutlined";
 
 export const Header = () => {
   return (
@@ -14,15 +15,25 @@ export const Header = () => {
       }}
     >
       <Toolbar>
-        <Typography
-          variant="h6"
+        <Stack
+          direction="row"
+          spacing={2}
           sx={{
-            fontWeight: 600,
-            letterSpacing: "0.1rem",
+            justifyContent: "flex-start",
+            alignItems: "center",
           }}
         >
-          UrbanScope
-        </Typography>
+          <PublicOutlinedIcon />
+          <Typography
+            variant="h4"
+            sx={{
+              fontWeight: 600,
+              letterSpacing: "0.1rem",
+            }}
+          >
+            UrbanScope
+          </Typography>
+        </Stack>
       </Toolbar>
     </AppBar>
   );
