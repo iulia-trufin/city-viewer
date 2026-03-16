@@ -25,7 +25,7 @@ import { useState } from "react";
 export const CountryPopulationPage = () => {
   const [search, setSearch] = useState("");
   const countryQuery = useQuery({
-    queryKey: ["cities"],
+    queryKey: ["countries"],
     placeholderData: {},
     queryFn: async () => {
       const apiRes = await axios(getCountries());
@@ -124,11 +124,12 @@ export const CountryPopulationPage = () => {
           sx={{
             borderRadius: 3,
             border: "1px solid #eee",
-            overflow: "hidden",
+            overflow: "auto",
             boxShadow: "0 4px 20px rgba(0,0,0,0.04)",
+            maxHeight: "70vh",
           }}
         >
-          <Table>
+          <Table stickyHeader>
             <TableHead>
               <TableRow
                 sx={{
@@ -152,7 +153,7 @@ export const CountryPopulationPage = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {countryQuery.isLoading && (
+              {(countryQuery.isLoading || countryQuery.isFetching) && (
                 <TableRow>
                   <TableCell colSpan={countryColumns.length} align="center">
                     <CircularProgress />

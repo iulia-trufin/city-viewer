@@ -1,7 +1,7 @@
 import "./App.css";
 import CountryPopulationPage from "./pages/CountryPopulationPage";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { Layout } from "./components/Layout/Layout.tsx";
+import { Layout } from "./components/Layout";
 
 function App() {
   return (
