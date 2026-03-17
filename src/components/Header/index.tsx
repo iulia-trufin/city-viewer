@@ -1,5 +1,5 @@
 import { AppBar, Box, Stack, Toolbar, Typography } from "@mui/material";
-import PublicOutlinedIcon from "@mui/icons-material/PublicOutlined";
+import LocationCityOutlinedIcon from "@mui/icons-material/LocationCityOutlined";
 
 export const Header = () => {
   return (
@@ -38,7 +38,7 @@ export const Header = () => {
               backgroundColor: "#f5f5f5",
             }}
           >
-            <PublicOutlinedIcon fontSize="medium" />
+            <LocationCityOutlinedIcon fontSize="medium" />
           </Box>
           <Typography
             variant="h5"
