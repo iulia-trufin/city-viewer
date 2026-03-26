@@ -11,6 +11,7 @@ import {
   TableCell,
   TableContainer,
   TableHead,
+  TablePagination,
   TableRow,
   TableSortLabel,
   TextField,
@@ -21,13 +22,16 @@ import FilterListOutlinedIcon from "@mui/icons-material/FilterListOutlined";
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import type { Country } from "../../types/Country.ts";
 import type { TableColumn } from "../../types/TableColumn.ts";
-import { useState } from "react";
+import { type ChangeEvent, useState } from "react";
 import Flag from "react-flagkit";
 
 export const CountryPopulationPage = () => {
   const [search, setSearch] = useState("");
   const [orderBy, setOrderBy] = useState<keyof Country | null>(null);
   const [order, setOrder] = useState<"asc" | "desc" | undefined>(undefined);
+  //mui is 0 based, so a normal human page starts from 0...
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const countryQuery = useQuery({
     queryKey: ["countries"],
     placeholderData: {},
@@ -100,6 +104,25 @@ export const CountryPopulationPage = () => {
     //not treating objects yet because no such case... yet
   });
 
+  //MUI insists that I have the event param, but don't need it, so trying to ignore it cleanly
+  const handlePageChange = (_: unknown, newPage: number) => {
+    setPage(newPage);
+  };
+
+  const handleRowsChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setRowsPerPage(Number(event.target.value));
+    setPage(0);
+  };
+
+  const paginatedData: Country[] = [];
+  const startIndex: number = page * rowsPerPage;
+  const endIndex: number = startIndex + rowsPerPage;
+  sortedData.forEach((value: Country, index: number) => {
+    if (index >= startIndex && index < endIndex) {
+      paginatedData.push(value);
+    }
+  });
+
   return (
     <Box sx={{ p: 3 }}>
       {/*header and its actions*/}
@@ -168,106 +191,125 @@ export const CountryPopulationPage = () => {
           </Stack>
         </Stack>
       </Toolbar>
-      {/*actual table and its contents*/}
-      <TableContainer
+      <Box
         sx={{
           borderRadius: 3,
           border: "1px solid #eee",
-          overflow: "auto",
           boxShadow: "0 4px 20px rgba(0,0,0,0.04)",
-          maxHeight: "70vh",
+          overflow: "hidden",
         }}
       >
-        <Table stickyHeader>
-          <TableHead>
-            <TableRow
-              sx={{
-                backgroundColor: "#fafafa",
-              }}
-            >
-              {countryColumns.map((column) => (
-                <TableCell
-                  key={column.id}
-                  sx={{
-                    fontWeight: 600,
-                    fontSize: "0.8rem",
-                    textTransform: "uppercase",
-                    color: "#668",
-                    borderBottom: "1px solid #eee",
-                    cursor: "pointer",
-                  }}
-                  onClick={() => handleSort(column.id)}
-                >
-                  <TableSortLabel
-                    active={orderBy === column.id}
-                    direction={orderBy === column.id ? order : "asc"}
+        {/*actual table and its contents*/}
+        <TableContainer
+          sx={{
+            overflow: "auto",
+            maxHeight: "70vh",
+          }}
+        >
+          <Table stickyHeader>
+            <TableHead>
+              <TableRow
+                sx={{
+                  backgroundColor: "#fafafa",
+                }}
+              >
+                {countryColumns.map((column) => (
+                  <TableCell
+                    key={column.id}
+                    sx={{
+                      fontWeight: 600,
+                      fontSize: "0.8rem",
+                      textTransform: "uppercase",
+                      color: "#668",
+                      borderBottom: "1px solid #eee",
+                      cursor: "pointer",
+                    }}
+                    onClick={() => handleSort(column.id)}
                   >
-                    {column.label}
-                  </TableSortLabel>
-                </TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {(countryQuery.isLoading || countryQuery.isFetching) && (
-              <TableRow>
-                <TableCell colSpan={countryColumns.length} align="center">
-                  <CircularProgress />
-                </TableCell>
+                    <TableSortLabel
+                      active={orderBy === column.id}
+                      direction={orderBy === column.id ? order : "asc"}
+                    >
+                      {column.label}
+                    </TableSortLabel>
+                  </TableCell>
+                ))}
               </TableRow>
-            )}
-            {countryQuery.error && (
-              <TableRow>
-                <TableCell colSpan={countryColumns.length} align="center">
-                  No records found. Please check with us.
-                </TableCell>
-              </TableRow>
-            )}
-            {countryQuery.isFetched &&
-              sortedData.map((row) => (
-                <TableRow
-                  key={row.geonameId}
-                  sx={{
-                    "&:hover": {
-                      backgroundColor: "#fafafa",
-                    },
-                    transition: "background-color 0.2s ease",
-                  }}
-                >
-                  {countryColumns.map((column) => {
-                    const value = row[column.id];
-                    return (
-                      <TableCell
-                        key={column.id}
-                        sx={{
-                          borderBottom: "1px solid #f5f5f5",
-                          fontSize: "0.9rem",
-                          py: 1.5,
-                        }}
-                      >
-                        {column.id === "countryName" ? (
-                          <Stack
-                            direction="row"
-                            sx={{
-                              justifyContent: "flex-start",
-                              alignItems: "center",
-                              gap: 0.5,
-                            }}
-                          >
-                            <Flag country={row.countryCode} size={15} />
-                            {value}
-                          </Stack>
-                        ) : (
-                          value
-                        )}
-                      </TableCell>
-                    );
-                  })}
+            </TableHead>
+            <TableBody>
+              {(countryQuery.isLoading || countryQuery.isFetching) && (
+                <TableRow>
+                  <TableCell colSpan={countryColumns.length} align="center">
+                    <CircularProgress />
+                  </TableCell>
                 </TableRow>
-              ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+              )}
+              {countryQuery.error && (
+                <TableRow>
+                  <TableCell colSpan={countryColumns.length} align="center">
+                    No records found. Please check with us.
+                  </TableCell>
+                </TableRow>
+              )}
+              {countryQuery.isFetched &&
+                paginatedData.map((row) => (
+                  <TableRow
+                    key={row.geonameId}
+                    sx={{
+                      "&:hover": {
+                        backgroundColor: "#fafafa",
+                      },
+                      transition: "background-color 0.2s ease",
+                    }}
+                  >
+                    {countryColumns.map((column) => {
+                      const value = row[column.id];
+                      return (
+                        <TableCell
+                          key={column.id}
+                          sx={{
+                            borderBottom: "1px solid #f5f5f5",
+                            fontSize: "0.9rem",
+                            py: 1.5,
+                          }}
+                        >
+                          {column.id === "countryName" ? (
+                            <Stack
+                              direction="row"
+                              sx={{
+                                justifyContent: "flex-start",
+                                alignItems: "center",
+                                gap: 0.5,
+                              }}
+                            >
+                              <Flag country={row.countryCode} size={15} />
+                              {value}
+                            </Stack>
+                          ) : (
+                            value
+                          )}
+                        </TableCell>
+                      );
+                    })}
+                  </TableRow>
+                ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <TablePagination
+          count={countryData.length}
+          onPageChange={handlePageChange}
+          page={page}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={handleRowsChange}
+          rowsPerPageOptions={[10, 25, 50, 100]}
+          sx={{
+            borderTop: "1px solid #eee",
+            display: "flex",
+            justifyContent: "flex-end",
+          }}
+        />
+      </Box>
     </Box>
   );
 };
