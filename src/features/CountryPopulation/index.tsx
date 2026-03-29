@@ -1,6 +1,5 @@
 import { Stack } from "@mui/material";
 import type { Country } from "../../types/Country.ts";
-import { useState } from "react";
 import Flag from "react-flagkit";
 import { GenericTable } from "../../components/GenericTable";
 import { useSort } from "../../hooks/useSort.ts";
@@ -8,16 +7,23 @@ import { sortData } from "../../helpers/sortData.ts";
 import { usePagination } from "../../hooks/usePagination.ts";
 import { useContries } from "../../hooks/useContries.ts";
 import { countryColumns } from "../../constants/countryColumns.ts";
+import { useTableSearch } from "../../hooks/useTableSearch.ts";
 
 export const CountryPopulation = () => {
-  const [search, setSearch] = useState("");
-
   const { order, orderBy, handleSort } = useSort<Country>();
   const countryQuery = useContries();
 
   const countryData = countryQuery.data ? Object.values(countryQuery.data) : [];
 
-  const sortedData = sortData(countryData, orderBy, order);
+  //only searching in the displayed columns, no point to search ids or geolocations
+  const searchKeys = countryColumns.map((col) => col.id);
+
+  const { search, setSearch, searchedData } = useTableSearch(
+    countryData,
+    searchKeys,
+  );
+
+  const sortedData = sortData(searchedData, orderBy, order);
 
   const {
     page,
@@ -36,9 +42,9 @@ export const CountryPopulation = () => {
       error={!!countryQuery.error}
       page={page}
       rowsPerPage={rowsPerPage}
-      totalCount={countryData.length}
+      totalCount={searchedData.length}
       search={search}
-      onSearchChange={(e) => setSearch(e.target.value)}
+      onSearchChange={setSearch}
       onFilterClick={() => {}}
       onExportClick={() => {}}
       orderBy={orderBy}

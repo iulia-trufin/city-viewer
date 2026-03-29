@@ -14,7 +14,7 @@ export type GenericTableProps<T> = {
   onRowsPerPageChange: (event: ChangeEvent<HTMLInputElement>) => void;
   cell: (row: T, column: TableColumn<T>) => ReactNode;
   search?: string;
-  onSearchChange?: (event: ChangeEvent<HTMLInputElement>) => void;
+  onSearchChange?: (value: string) => void;
   onFilterClick?: () => void;
   onExportClick?: () => void;
   orderBy?: keyof T | null;

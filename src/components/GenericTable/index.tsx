@@ -2,7 +2,6 @@ import type { GenericTableProps } from "../../types/GenericTableProps.ts";
 import {
   Box,
   CircularProgress,
-  IconButton,
   Stack,
   Table,
   TableBody,
@@ -12,12 +11,10 @@ import {
   TablePagination,
   TableRow,
   TableSortLabel,
-  TextField,
   Toolbar,
   Typography,
 } from "@mui/material";
-import FilterListOutlinedIcon from "@mui/icons-material/FilterListOutlined";
-import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
+import { GenericTableActions } from "../GenericTableActions";
 
 export function GenericTable<T>({
   title,
@@ -66,47 +63,12 @@ export function GenericTable<T>({
           >
             {title}
           </Typography>
-          <Stack
-            direction="row"
-            spacing={2}
-            sx={{
-              alignItems: "center",
-            }}
-          >
-            <TextField
-              size="small"
-              placeholder="Search"
-              value={search}
-              onChange={onSearchChange}
-              sx={{
-                minWidth: 220,
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: 2,
-                  backgroundColor: "#fafafa",
-                },
-              }}
-            />
-            <IconButton
-              sx={{
-                border: "1px solid #eee",
-                borderRadius: 2,
-                backgroundColor: "#fff",
-              }}
-              onClick={onFilterClick}
-            >
-              <FilterListOutlinedIcon fontSize="small" />
-            </IconButton>
-            <IconButton
-              sx={{
-                border: "1px solid #eee",
-                borderRadius: 2,
-                backgroundColor: "#fff",
-              }}
-              onClick={onExportClick}
-            >
-              <FileDownloadOutlinedIcon fontSize="small" />
-            </IconButton>
-          </Stack>
+          <GenericTableActions
+            search={search}
+            onSearchChange={onSearchChange}
+            onFilterClick={onFilterClick}
+            onExportClick={onExportClick}
+          />
         </Stack>
       </Toolbar>
       <Box
