@@ -8,6 +8,7 @@ import { usePagination } from "../../hooks/usePagination.ts";
 import { useContries } from "../../hooks/useContries.ts";
 import { countryColumns } from "../../constants/countryColumns.ts";
 import { useTableSearch } from "../../hooks/useTableSearch.ts";
+import { useTableExport } from "../../hooks/useTableExport.ts";
 
 export const CountryPopulation = () => {
   const { order, orderBy, handleSort } = useSort<Country>();
@@ -24,6 +25,11 @@ export const CountryPopulation = () => {
   );
 
   const sortedData = sortData(searchedData, orderBy, order);
+
+  const { exportCSV } = useTableExport<Country>();
+  const handleExport = () => {
+    exportCSV(searchedData, countryColumns, "Countries");
+  };
 
   const {
     page,
@@ -46,7 +52,7 @@ export const CountryPopulation = () => {
       search={search}
       onSearchChange={setSearch}
       onFilterClick={() => {}}
-      onExportClick={() => {}}
+      onExportClick={handleExport}
       orderBy={orderBy}
       order={order}
       onSort={handleSort}

@@ -40,11 +40,11 @@ export function GenericTable<T>({
     <Box sx={{ p: 3 }}>
       {/*header and its actions*/}
       <Toolbar
-        sx={{
+        sx={(theme) => ({
           px: 3,
           py: 2,
-          borderBottom: "1px solid #eee",
-        }}
+          borderBottom: `1px solid ${theme.palette.divider}`,
+        })}
       >
         <Stack
           direction="row"
@@ -72,12 +72,12 @@ export function GenericTable<T>({
         </Stack>
       </Toolbar>
       <Box
-        sx={{
+        sx={(theme) => ({
           borderRadius: 3,
-          border: "1px solid #eee",
-          boxShadow: "0 4px 20px rgba(0,0,0,0.04)",
+          border: `1px solid ${theme.palette.divider}`,
+          boxShadow: theme.shadows[1],
           overflow: "hidden",
-        }}
+        })}
       >
         {/*actual table and its contents*/}
         <TableContainer
@@ -89,21 +89,21 @@ export function GenericTable<T>({
           <Table stickyHeader>
             <TableHead>
               <TableRow
-                sx={{
-                  backgroundColor: "#fafafa",
-                }}
+                sx={(theme) => ({
+                  backgroundColor: theme.palette.background.paper,
+                })}
               >
                 {columns.map((column) => (
                   <TableCell
                     key={String(column.id)}
-                    sx={{
+                    sx={(theme) => ({
                       fontWeight: 600,
                       fontSize: "0.8rem",
                       textTransform: "uppercase",
-                      color: "#668",
-                      borderBottom: "1px solid #eee",
+                      color: theme.palette.text.secondary,
+                      borderBottom: `1px solid ${theme.palette.divider}`,
                       cursor: "pointer",
-                    }}
+                    })}
                     onClick={() => onSort?.(column.id)}
                   >
                     <TableSortLabel
@@ -136,22 +136,22 @@ export function GenericTable<T>({
                 data.map((row, rowIndex) => (
                   <TableRow
                     key={rowIndex}
-                    sx={{
+                    sx={(theme) => ({
                       "&:hover": {
-                        backgroundColor: "#fafafa",
+                        backgroundColor: theme.palette.action.hover,
                       },
                       transition: "background-color 0.2s ease",
-                    }}
+                    })}
                   >
                     {columns.map((column) => {
                       return (
                         <TableCell
                           key={String(column.id)}
-                          sx={{
-                            borderBottom: "1px solid #f5f5f5",
+                          sx={(theme) => ({
+                            borderBottom: `1px solid ${theme.palette.divider}`,
                             fontSize: "0.9rem",
                             py: 1.5,
-                          }}
+                          })}
                         >
                           {cell
                             ? cell(row, column)

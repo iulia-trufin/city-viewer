@@ -1,22 +1,37 @@
-import { AppBar, Box, Stack, Toolbar, Typography } from "@mui/material";
+import {
+  AppBar,
+  Box,
+  IconButton,
+  Stack,
+  Toolbar,
+  Typography,
+} from "@mui/material";
 import LocationCityOutlinedIcon from "@mui/icons-material/LocationCityOutlined";
+import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
+import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
+import type { ThemeProps } from "../../types/ThemeProps.ts";
 
-export const Header = () => {
+export const Header = ({ mode, onToggleTheme }: ThemeProps) => {
   return (
     <AppBar
       position="sticky"
       elevation={0}
-      sx={{
+      sx={(theme) => ({
         backdropFilter: "blur(10px)",
-        backgroundColor: "rgba(255,255,255,0.8)",
+        backgroundColor:
+          theme.palette.mode === "light"
+            ? "rgba(255,255,255,0.8)"
+            : "rgba(15,15,15,0.8)",
         color: "text.primary",
-        borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
-      }}
+        borderBottom: `1px solid ${theme.palette.divider}`,
+      })}
     >
       <Toolbar
         sx={{
           minHeight: 64,
           px: 3,
+          display: "flex",
+          justifyContent: "space-between",
         }}
       >
         <Stack
@@ -28,15 +43,15 @@ export const Header = () => {
           }}
         >
           <Box
-            sx={{
+            sx={(theme) => ({
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               width: 36,
               height: 36,
               borderRadius: 2,
-              backgroundColor: "#f5f5f5",
-            }}
+              backgroundColor: theme.palette.background.paper,
+            })}
           >
             <LocationCityOutlinedIcon fontSize="medium" />
           </Box>
@@ -50,6 +65,20 @@ export const Header = () => {
             UrbanScope
           </Typography>
         </Stack>
+        <IconButton
+          onClick={onToggleTheme}
+          sx={(theme) => ({
+            border: `1px solid ${theme.palette.divider}`,
+            borderRadius: 2,
+            backgroundColor: theme.palette.background.paper,
+          })}
+        >
+          {mode === "light" ? (
+            <DarkModeOutlinedIcon />
+          ) : (
+            <LightModeOutlinedIcon />
+          )}
+        </IconButton>
       </Toolbar>
     </AppBar>
   );

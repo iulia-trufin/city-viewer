@@ -26,22 +26,22 @@ export const GenericTableActions = ({
           placeholder="Search"
           value={search}
           onChange={(e) => onSearchChange?.(e.target.value)}
-          sx={{
+          sx={(theme) => ({
             minWidth: 220,
             "& .MuiOutlinedInput-root": {
               borderRadius: 2,
-              backgroundColor: "#fafafa",
+              backgroundColor: theme.palette.background.default,
             },
-          }}
+          })}
         />
       )}
       {showFilter && (
         <IconButton
-          sx={{
-            border: "1px solid #eee",
+          sx={(theme) => ({
+            border: `1px solid ${theme.palette.divider}`,
             borderRadius: 2,
-            backgroundColor: "#fff",
-          }}
+            backgroundColor: theme.palette.background.paper,
+          })}
           onClick={onFilterClick}
         >
           <FilterListOutlinedIcon fontSize="small" />
@@ -49,11 +49,11 @@ export const GenericTableActions = ({
       )}
       {showExport && (
         <IconButton
-          sx={{
-            border: "1px solid #eee",
+          sx={(theme) => ({
+            border: `1px solid ${theme.palette.divider}`,
             borderRadius: 2,
-            backgroundColor: "#fff",
-          }}
+            backgroundColor: theme.palette.background.paper,
+          })}
           onClick={onExportClick}
         >
           <FileDownloadOutlinedIcon fontSize="small" />
