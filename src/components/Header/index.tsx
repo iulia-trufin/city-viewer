@@ -9,9 +9,10 @@ import {
 import LocationCityOutlinedIcon from "@mui/icons-material/LocationCityOutlined";
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
-import type { ThemeProps } from "../../types/ThemeProps.ts";
+import { useThemeMode } from "../../providers/ThemeProviderWrapper";
 
-export const Header = ({ mode, onToggleTheme }: ThemeProps) => {
+export const Header = () => {
+  const { mode, onToggleTheme } = useThemeMode();
   return (
     <AppBar
       position="sticky"
