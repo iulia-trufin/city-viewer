@@ -1,12 +1,14 @@
 import { useMemo, useState } from "react";
+import { useDebounce } from "./useDebounce.ts";
 
 export function useTableSearch<T extends Record<string, unknown>>(
   data: T[],
   keys: (keyof T)[],
 ) {
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search);
   const searchedData = useMemo(() => {
-    if (!search) {
+    if (!debouncedSearch) {
       return data;
     }
     return data.filter((item) =>
@@ -15,12 +17,12 @@ export function useTableSearch<T extends Record<string, unknown>>(
         if (!value) {
           return false;
         }
-        const lowerCaseSearch = search.toLowerCase();
+        const lowerCaseSearch = debouncedSearch.toLowerCase();
         const stringedValue = String(value).toLowerCase();
         return stringedValue.includes(lowerCaseSearch);
       }),
     );
-  }, [data, search, keys]);
+  }, [data, debouncedSearch, keys]);
   return {
     search,
     setSearch,

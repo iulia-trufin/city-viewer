@@ -27,7 +27,7 @@ export const ThemeProviderWrapper = ({ children }: { children: ReactNode }) => {
   const theme = useMemo(() => getTheme(mode), [mode]);
   return (
     <ThemeModeContext.Provider value={{ mode, onToggleTheme }}>
-      <ThemeProvider theme={theme}> {children} </ThemeProvider>{" "}
+      <ThemeProvider theme={theme}> {children} </ThemeProvider>
     </ThemeModeContext.Provider>
   );
 };
