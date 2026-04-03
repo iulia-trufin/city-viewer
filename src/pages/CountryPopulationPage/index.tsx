@@ -1,7 +1,5 @@
-import CountryPopulation from "../../features/CountryPopulation";
+import { CountryPopulation } from "../../features/CountryPopulation";
 
 export const CountryPopulationPage = () => {
   return <CountryPopulation />;
 };
-
-export default CountryPopulationPage;

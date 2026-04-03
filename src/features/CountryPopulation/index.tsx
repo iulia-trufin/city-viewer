@@ -62,7 +62,7 @@ export const CountryPopulation = () => {
         error={!!countryQuery.error}
         page={page}
         rowsPerPage={rowsPerPage}
-        totalCount={paginatedData.length}
+        totalCount={sortedData.length}
         search={search}
         onSearchChange={setSearch}
         onFilterClick={() => setFilterModalOpen(true)}
@@ -105,5 +105,3 @@ export const CountryPopulation = () => {
     </>
   );
 };
-
-export default CountryPopulation;
