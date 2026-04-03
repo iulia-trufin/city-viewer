@@ -8,7 +8,7 @@ export type GenericTableActionsProps = {
   showExport?: boolean;
 };
 
-export type FilterType = "dropdown" | "range" | "date";
+export type FilterType = "dropdown" | "range";
 
 export type FilterConfig = {
   id: string;
@@ -16,7 +16,4 @@ export type FilterConfig = {
   type: FilterType;
 };
 
-export type UseGenericTableActionsProps<T> = {
-  data: T[];
-  filters?: FilterConfig[];
-};
+export type FilterValue = string[] | { min?: number; max?: number } | null;

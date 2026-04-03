@@ -9,10 +9,16 @@ import { useContries } from "../../hooks/useContries.ts";
 import { countryColumns } from "../../constants/countryColumns.ts";
 import { useTableSearch } from "../../hooks/useTableSearch.ts";
 import { useTableExport } from "../../hooks/useTableExport.ts";
+import { useTableFilters } from "../../helpers/useTableFilters.ts";
+import { useState } from "react";
+import { countryFilters } from "../../constants/countryFilters.ts";
+import { FilterModal } from "../../components/FilterModal";
 
 export const CountryPopulation = () => {
   const { order, orderBy, handleSort } = useSort<Country>();
   const countryQuery = useContries();
+
+  const [filterModalOpen, setFilterModalOpen] = useState(false);
 
   const countryData = countryQuery.data ? Object.values(countryQuery.data) : [];
 
@@ -24,11 +30,16 @@ export const CountryPopulation = () => {
     searchKeys,
   );
 
-  const sortedData = sortData(searchedData, orderBy, order);
+  const { filterState, setFilterState, filteredData } = useTableFilters(
+    searchedData,
+    countryFilters,
+  );
+
+  const sortedData = sortData(filteredData, orderBy, order);
 
   const { exportCSV } = useTableExport<Country>();
   const handleExport = () => {
-    exportCSV(searchedData, countryColumns, "Countries");
+    exportCSV(filteredData, countryColumns, "Countries");
   };
 
   const {
@@ -39,47 +50,59 @@ export const CountryPopulation = () => {
     handleRowsChange,
   } = usePagination(sortedData);
 
+  //raw data > searched data > filtered data > sorted data > paginated data
+
   return (
-    <GenericTable
-      title="Countries"
-      data={paginatedData}
-      columns={countryColumns}
-      loading={countryQuery.isLoading || countryQuery.isFetching}
-      error={!!countryQuery.error}
-      page={page}
-      rowsPerPage={rowsPerPage}
-      totalCount={searchedData.length}
-      search={search}
-      onSearchChange={setSearch}
-      onFilterClick={() => {}}
-      onExportClick={handleExport}
-      orderBy={orderBy}
-      order={order}
-      onSort={handleSort}
-      onPageChange={handlePageChange}
-      onRowsPerPageChange={handleRowsChange}
-      cell={(row, column) => {
-        const value = row[column.id];
+    <>
+      <GenericTable
+        title="Countries"
+        data={paginatedData}
+        columns={countryColumns}
+        loading={countryQuery.isLoading || countryQuery.isFetching}
+        error={!!countryQuery.error}
+        page={page}
+        rowsPerPage={rowsPerPage}
+        totalCount={paginatedData.length}
+        search={search}
+        onSearchChange={setSearch}
+        onFilterClick={() => setFilterModalOpen(true)}
+        onExportClick={handleExport}
+        orderBy={orderBy}
+        order={order}
+        onSort={handleSort}
+        onPageChange={handlePageChange}
+        onRowsPerPageChange={handleRowsChange}
+        cell={(row, column) => {
+          const value = row[column.id];
 
-        if (column.id === "countryName") {
-          return (
-            <Stack
-              direction="row"
-              sx={{
-                justifyContent: "flex-start",
-                alignItems: "center",
-                gap: 0.5,
-              }}
-            >
-              <Flag country={row.countryCode} size={15} />
-              {value}
-            </Stack>
-          );
-        }
+          if (column.id === "countryName") {
+            return (
+              <Stack
+                direction="row"
+                sx={{
+                  justifyContent: "flex-start",
+                  alignItems: "center",
+                  gap: 0.5,
+                }}
+              >
+                <Flag country={row.countryCode} size={15} />
+                {value}
+              </Stack>
+            );
+          }
 
-        return value;
-      }}
-    />
+          return value;
+        }}
+      />
+      <FilterModal
+        open={filterModalOpen}
+        onClose={() => setFilterModalOpen(false)}
+        filters={countryFilters}
+        data={countryData}
+        filterState={filterState}
+        setFilterState={setFilterState}
+      />
+    </>
   );
 };
 

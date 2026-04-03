@@ -16,6 +16,7 @@
     "@mui/material": "^7.3.9",
     "@tanstack/react-query": "^5.90.21",
     "axios": "^1.13.6",
+    "moment": "^2.30.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-flagkit": "^2.0.4",
