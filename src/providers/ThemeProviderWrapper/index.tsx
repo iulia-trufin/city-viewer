@@ -18,10 +18,18 @@ const ThemeModeContext = createContext<ThemeProps>({
 export const useThemeMode = () => useContext(ThemeModeContext);
 
 export const ThemeProviderWrapper = ({ children }: { children: ReactNode }) => {
-  const [mode, setMode] = useState<Mode>("light");
+  const [mode, setMode] = useState<Mode>(() => {
+    const savedMode = localStorage.getItem("theme-mode");
+    if (savedMode === "dark" || savedMode === "light") {
+      return savedMode;
+    }
+    return "light";
+  });
   const onToggleTheme = () => {
     setMode((prevMode) => {
-      return prevMode === "light" ? "dark" : "light";
+      const newMode = prevMode === "light" ? "dark" : "light";
+      localStorage.setItem("theme-mode", newMode);
+      return newMode;
     });
   };
   const theme = useMemo(() => getTheme(mode), [mode]);
