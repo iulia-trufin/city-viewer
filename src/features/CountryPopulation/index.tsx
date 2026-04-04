@@ -5,7 +5,7 @@ import { GenericTable } from "../../components/GenericTable";
 import { useSort } from "../../hooks/useSort.ts";
 import { sortData } from "../../helpers/sortData.ts";
 import { usePagination } from "../../hooks/usePagination.ts";
-import { useContries } from "../../hooks/useContries.ts";
+import { useCountries } from "../../hooks/useCountries.ts";
 import { countryColumns } from "../../constants/countryColumns.ts";
 import { useTableSearch } from "../../hooks/useTableSearch.ts";
 import { useTableExport } from "../../hooks/useTableExport.ts";
@@ -16,11 +16,11 @@ import { FilterModal } from "../../components/FilterModal";
 
 export const CountryPopulation = () => {
   const { order, orderBy, handleSort } = useSort<Country>();
-  const countryQuery = useContries();
+  const countryQuery = useCountries();
 
   const [filterModalOpen, setFilterModalOpen] = useState(false);
 
-  const countryData = countryQuery.data ? Object.values(countryQuery.data) : [];
+  const countryData = countryQuery.data ?? [];
 
   //only searching in the displayed columns, no point to search ids or geolocations
   const searchKeys = countryColumns.map((col) => col.id);

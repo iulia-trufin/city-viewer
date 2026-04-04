@@ -2,19 +2,15 @@ import type { FilterModalProps } from "../../types/FilterModalProps.ts";
 import type { FilterValue } from "../../types/GenericTableActionsProps.ts";
 import {
   Button,
-  Checkbox,
   Dialog,
   DialogContent,
   DialogTitle,
-  ListItemText,
-  MenuItem,
-  OutlinedInput,
-  Select,
   Stack,
   TextField,
   Typography,
 } from "@mui/material";
 import { useState } from "react";
+import { MultiSelectFilter } from "../MultiSelectFilter";
 
 export function FilterModal<T>({
   open,
@@ -55,65 +51,13 @@ export function FilterModal<T>({
         .filter(Boolean)
         .sort((a, b) => a.localeCompare(b, "no"));
       return (
-        <Stack spacing={0.5} sx={{ flex: 1, maxWidth: 300 }}>
-          <Typography
-            variant="body2"
-            sx={{ textTransform: "uppercase", fontSize: "0.7rem" }}
-          >
-            {filter.label}
-          </Typography>
-          <Select
-            key={filter.id}
-            multiple
-            value={(current as string[]) ?? []}
-            onChange={(e) => {
-              const value = e.target.value as string[];
-              handleChangeFilter(filter.id, value);
-            }}
-            input={<OutlinedInput />}
-            sx={{
-              height: 40,
-              maxWidth: 300,
-              fontSize: "0.8rem",
-
-              "& .MuiOutlinedInput-notchedOutline": {
-                borderColor: "divider",
-              },
-
-              "&:hover .MuiOutlinedInput-notchedOutline": {
-                borderColor: "text.primary",
-              },
-
-              "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                borderColor: "primary.main",
-              },
-            }}
-            renderValue={(selected) => {
-              const values = selected as string[];
-              if (values.length === 0) {
-                return "";
-              }
-              //going to show only the first 2 values selected, or not if they don't fit
-              const firstTwo = values.slice(0, 2);
-              const text = firstTwo.join(", ");
-              const maxLength = 60;
-              if (values.length > 2 || text.length > maxLength) {
-                return text.slice(0, maxLength) + "...";
-              }
-              return text;
-            }}
-          >
-            {options.map((option) => {
-              const selected = (current as string[])?.includes(option);
-              return (
-                <MenuItem key={option} value={option}>
-                  <Checkbox checked={!!selected} size={"small"}></Checkbox>
-                  <ListItemText primary={option} />
-                </MenuItem>
-              );
-            })}
-          </Select>
-        </Stack>
+        <MultiSelectFilter
+          label={filter.label}
+          id={filter.id}
+          value={(current as string[]) ?? []}
+          options={options}
+          onChange={(value) => handleChangeFilter(filter.id, value)}
+        />
       );
     }
     //range
@@ -145,7 +89,7 @@ export function FilterModal<T>({
                 })
               }
               size="small"
-              sx={{
+              sx={(theme) => ({
                 height: 40,
                 maxWidth: 150,
                 fontSize: "0.8rem",
@@ -160,18 +104,27 @@ export function FilterModal<T>({
                     margin: 0,
                   },
 
+                "& .MuiInputBase-root": {
+                  backgroundColor:
+                    theme.palette.mode === "dark" ? "#2a2a2a" : "#fff",
+                },
+
+                "& input": {
+                  color: theme.palette.text.primary,
+                },
+
                 "& .MuiOutlinedInput-notchedOutline": {
-                  borderColor: "divider",
+                  borderColor: theme.palette.divider,
                 },
 
                 "&:hover .MuiOutlinedInput-notchedOutline": {
-                  borderColor: "text.primary",
+                  borderColor: theme.palette.text.primary,
                 },
 
                 "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                  borderColor: "primary.main",
+                  borderColor: theme.palette.primary.main,
                 },
-              }}
+              })}
             />
             <TextField
               type="number"
@@ -185,7 +138,7 @@ export function FilterModal<T>({
                 })
               }
               size="small"
-              sx={{
+              sx={(theme) => ({
                 height: 40,
                 maxWidth: 150,
                 fontSize: "0.8rem",
@@ -200,18 +153,27 @@ export function FilterModal<T>({
                     margin: 0,
                   },
 
+                "& .MuiInputBase-root": {
+                  backgroundColor:
+                    theme.palette.mode === "dark" ? "#2a2a2a" : "#fff",
+                },
+
+                "& input": {
+                  color: theme.palette.text.primary,
+                },
+
                 "& .MuiOutlinedInput-notchedOutline": {
-                  borderColor: "divider",
+                  borderColor: theme.palette.divider,
                 },
 
                 "&:hover .MuiOutlinedInput-notchedOutline": {
-                  borderColor: "text.primary",
+                  borderColor: theme.palette.text.primary,
                 },
 
                 "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                  borderColor: "primary.main",
+                  borderColor: theme.palette.primary.main,
                 },
-              }}
+              })}
             />
           </Stack>
         </Stack>
@@ -228,23 +190,36 @@ export function FilterModal<T>({
       maxWidth="md"
       slotProps={{
         paper: {
-          sx: {
+          sx: (theme) => ({
             borderRadius: 3,
-            p: 1,
-          },
+            p: 2,
+            backgroundColor: theme.palette.background.paper,
+            backgroundImage: "none",
+            boxShadow: theme.shadows[24],
+            border: `1px solid ${theme.palette.divider}`,
+          }),
         },
         backdrop: {
           sx: {
-            backgroundColor: "rgba(0,0,0,0.6)",
+            backgroundColor: "rgba(0,0,0,0.7)",
+            backdropFilter: "blur(4px)",
           },
         },
       }}
     >
-      <DialogTitle>Filters</DialogTitle>
+      <DialogTitle
+        sx={{
+          fontWeight: 600,
+          fontSize: "1.1rem",
+          pb: 4,
+        }}
+      >
+        Filters
+      </DialogTitle>
       <DialogContent>
-        <Stack spacing={2}>
+        <Stack spacing={3}>
           {/*filters arrangements*/}
-          <Stack spacing={2} direction="row">
+          <Stack direction="row" spacing={3}>
             {/* left column*/}
             <Stack spacing={3} flex={1}>
               {leftFilters.map(renderFilter)}
@@ -255,7 +230,7 @@ export function FilterModal<T>({
             </Stack>
           </Stack>
           {/*clear and apply buttons*/}
-          <Stack justifyContent="flex-end" spacing={2} direction="row">
+          <Stack justifyContent="flex-end" spacing={2} direction="row" mt={2}>
             <Button
               onClick={() => {
                 onClose();
@@ -263,6 +238,10 @@ export function FilterModal<T>({
                 setTempFilterState({});
               }}
               variant="outlined"
+              sx={{
+                textTransform: "none",
+                borderRadius: 2,
+              }}
             >
               Clear
             </Button>
@@ -272,6 +251,11 @@ export function FilterModal<T>({
                 setFilterState(tempFilterState);
               }}
               variant="contained"
+              sx={{
+                textTransform: "none",
+                borderRadius: 2,
+                px: 3,
+              }}
             >
               Apply
             </Button>

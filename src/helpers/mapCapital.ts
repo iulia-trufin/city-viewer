@@ -2,15 +2,15 @@ import type { City } from "../types/City.ts";
 import type { CityCsvRow } from "../types/CityCsvRow.ts";
 
 export function mapCapital(value: string): City["type"] {
-  if (value === "primary") return "Primary";
-  if (value === "admin") return "Capital";
+  if (value === "primary") return "Capital";
+  if (value === "admin") return "Primary";
   if (!value) return "Town";
   return "Minor";
 }
 
 export function mapRowToCity(row: CityCsvRow): City {
   return {
-    cityName: row.city_ascii,
+    cityName: row.city,
     lat: Number(row.lat),
     lon: Number(row.lng),
     country: row.country,
