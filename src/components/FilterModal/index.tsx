@@ -106,7 +106,9 @@ export function FilterModal<T>({
 
                 "& .MuiInputBase-root": {
                   backgroundColor:
-                    theme.palette.mode === "dark" ? "#2a2a2a" : "#fff",
+                    theme.palette.mode === "dark"
+                      ? theme.palette.grey[800]
+                      : theme.palette.grey[100],
                 },
 
                 "& input": {
@@ -155,7 +157,9 @@ export function FilterModal<T>({
 
                 "& .MuiInputBase-root": {
                   backgroundColor:
-                    theme.palette.mode === "dark" ? "#2a2a2a" : "#fff",
+                    theme.palette.mode === "dark"
+                      ? theme.palette.grey[800]
+                      : theme.palette.grey[100],
                 },
 
                 "& input": {

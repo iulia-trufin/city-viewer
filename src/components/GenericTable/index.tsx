@@ -12,9 +12,9 @@ import {
   TableRow,
   TableSortLabel,
   Toolbar,
-  Typography,
 } from "@mui/material";
 import { GenericTableActions } from "../GenericTableActions";
+import { PageTitle } from "../PageTitle";
 
 export function GenericTable<T>({
   title,
@@ -54,15 +54,7 @@ export function GenericTable<T>({
             alignItems: "center",
           }}
         >
-          <Typography
-            variant="h6"
-            sx={{
-              fontWeight: 700,
-              letterSpacing: "0.02em",
-            }}
-          >
-            {title}
-          </Typography>
+          <PageTitle title={title} />
           <GenericTableActions
             search={search}
             onSearchChange={onSearchChange}
@@ -72,12 +64,9 @@ export function GenericTable<T>({
         </Stack>
       </Toolbar>
       <Box
-        sx={(theme) => ({
-          borderRadius: 3,
-          border: `1px solid ${theme.palette.divider}`,
-          boxShadow: theme.shadows[1],
+        sx={{
           overflow: "hidden",
-        })}
+        }}
       >
         {/*actual table and its contents*/}
         <TableContainer

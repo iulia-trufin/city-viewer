@@ -15,10 +15,12 @@
     "@mui/icons-material": "^7.3.9",
     "@mui/material": "^7.3.9",
     "@tanstack/react-query": "^5.90.21",
+    "apexcharts": "^5.10.4",
     "axios": "^1.13.6",
     "moment": "^2.30.1",
     "papaparse": "^5.5.3",
     "react": "^19.2.0",
+    "react-apexcharts": "^2.1.0",
     "react-dom": "^19.2.0",
     "react-flagkit": "^2.0.4",
     "react-router-dom": "^7.13.1"

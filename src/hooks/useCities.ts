@@ -7,6 +7,7 @@ export function useCities() {
   return useQuery({
     queryKey: ["cities"],
     placeholderData: [],
+    staleTime: 8 * 60 * 60 * 1000,
     refetchOnWindowFocus: false,
     queryFn: async () => {
       const response = await fetch("/cities.csv");
