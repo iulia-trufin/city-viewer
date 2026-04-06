@@ -2,6 +2,7 @@
   "routes": [
     { "src": "^/assets/(.*)", "dest": "/assets/$1" },
     { "src": "^/cities\\.csv$", "dest": "/cities.csv" },
-    { "src": "^(?!/assets/).*", "dest": "/" }
+    { "src": "^(?!/assets/).*", "dest": "/" },
+    { "src": "^/api/(.*)", "dest": "/api/$1" }
   ]
 }

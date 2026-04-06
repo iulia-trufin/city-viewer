@@ -1,4 +1,4 @@
 export const getCountries = () => ({
-  url: "http://api.geonames.org/countryInfoJSON?username=iuliatrufin",
+  url: "/api/geonames",
   method: "GET",
 });
