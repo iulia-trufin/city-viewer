@@ -9,13 +9,14 @@ export const Menu = () => {
     <Box
       sx={{
         width: 240,
-        height: "calc(100vh - 64px)",
+        height: "100vh",
         position: "fixed",
         top: 64,
         left: 0,
         backgroundColor: "background.paper",
         paddingTop: 2,
         borderRight: (theme) => `1px solid ${theme.palette.divider}`,
+        zIndex: 999,
       }}
     >
       <Typography

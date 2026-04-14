@@ -4,6 +4,7 @@ import { Layout } from "./components/Layout";
 import { CountryPopulationPage } from "./pages/CountryPopulationPage";
 import { CityPopulationPage } from "./pages/CityPopulationPage";
 import { DashboardPage } from "./pages/DashboardPage";
+import { ContinentalMapPage } from "./pages/ContinentalMapPage";
 
 export function App() {
   return (
@@ -13,6 +14,7 @@ export function App() {
           {/* default page where the user lands */}
           <Route path="/" element={<Navigate to="/dashboard" />} />
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/continental-map" element={<ContinentalMapPage />} />
           <Route path="/countries" element={<CountryPopulationPage />} />
           <Route path="/cities" element={<CityPopulationPage />} />
           {/* for invalid urls */}
