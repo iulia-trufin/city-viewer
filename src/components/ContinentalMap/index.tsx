@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import maplibregl from "maplibre-gl";
+import maplibregl, { type MapLayerMouseEvent } from "maplibre-gl";
 import type { ContinentKey } from "../../types/ContinentKey.ts";
 import { continentsCoords } from "../../constants/continentsCoords.ts";
 import { getContinentFromCoords } from "../../helpers/getContinentFromCoords.ts";
@@ -12,14 +12,18 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
+import { useCountryPolygons } from "../../hooks/useCountryPolygons.ts";
+import { addCountryLayersMap } from "../../helpers/addCountryLayersMap.ts";
 
 export const ContinentalMap = () => {
   const mapRef = useRef<maplibregl.Map | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [continent, setContinent] = useState<ContinentKey | null>(null);
   const theme = useTheme();
+  const countryPolygonsQuery = useCountryPolygons();
+  const [hoveredCountry, setHoveredCountry] = useState<string | null>(null);
 
-  //initialising the map once on the first continent
+  //initialising the map once
   useEffect(() => {
     if (!containerRef.current) {
       return;
@@ -78,6 +82,74 @@ export const ContinentalMap = () => {
       essential: true,
     });
   }, [continent]);
+
+  //add / update country polygons
+  useEffect(() => {
+    const map = mapRef.current;
+    const countryPolygons = countryPolygonsQuery.data;
+
+    if (!map || !countryPolygons) {
+      return;
+    }
+
+    const handleMouseMove = (e: MapLayerMouseEvent) => {
+      const feature = e.features?.[0];
+      const countryName = feature?.properties && feature.properties.name;
+
+      setHoveredCountry(countryName);
+
+      map.getCanvas().style.cursor = "pointer";
+
+      map.setFilter("countries-hover-fill", [
+        "==",
+        ["get", "name"],
+        countryName ?? "",
+      ]);
+      map.setFilter("countries-hover-outline", [
+        "==",
+        ["get", "name"],
+        countryName ?? "",
+      ]);
+    };
+
+    const handleMouseLeave = () => {
+      setHoveredCountry(null);
+      map.getCanvas().style.cursor = "";
+
+      map.setFilter("countries-hover-fill", ["==", ["get", "name"], ""]);
+      map.setFilter("countries-hover-outline", ["==", ["get", "name"], ""]);
+    };
+
+    const addCountryLayers = () => {
+      const hasSource = !!map.getSource("countryPolygons");
+      const hasLayer = !!map.getLayer("countries-hit-area");
+      const existingSource = map.getSource("countryPolygons") as
+        | maplibregl.GeoJSONSource
+        | undefined;
+
+      if (!hasSource || !hasLayer) {
+        addCountryLayersMap(map, countryPolygons, theme);
+
+        map.on("mousemove", "countries-hit-area", handleMouseMove);
+
+        map.on("mouseleave", "countries-hit-area", handleMouseLeave);
+      } else {
+        if (existingSource) {
+          existingSource.setData(countryPolygons);
+        }
+      }
+    };
+
+    //if you ask me to use style.load instead of idle I'll beat you. I spent 2h debugging this
+
+    map.once("idle", addCountryLayers);
+
+    return () => {
+      map.off("idle", addCountryLayers);
+      map.off("mousemove", "countries-hit-area", handleMouseMove);
+      map.off("mouseleave", "countries-hit-area", handleMouseLeave);
+    };
+  }, [countryPolygonsQuery.data, theme]);
 
   //if you use firefox you might wait a bit because of how its privacy is set up. fun
 
@@ -145,14 +217,47 @@ export const ContinentalMap = () => {
           </Select>
         </Stack>
         <Box
-          ref={containerRef}
           sx={{
+            position: "relative",
             height: "80vh",
             width: "100%",
             borderRadius: 2,
             overflow: "hidden",
           }}
-        />
+        >
+          <Box
+            ref={containerRef}
+            sx={{
+              height: "80vh",
+              width: "100%",
+              borderRadius: 2,
+              overflow: "hidden",
+            }}
+          />
+          {hoveredCountry && (
+            <Box
+              sx={{
+                position: "absolute",
+                top: 16,
+                right: 16,
+                px: 2,
+                py: 1,
+                borderRadius: 2,
+                zIndex: 2,
+                backgroundColor:
+                  theme.palette.mode === "dark"
+                    ? "rgba(18,18,18,0.9)"
+                    : "rgba(255,255,255,0.92)",
+                boxShadow: 3,
+                backdropFilter: "blur(6px)",
+              }}
+            >
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                {hoveredCountry}
+              </Typography>
+            </Box>
+          )}
+        </Box>
       </Stack>
     </Box>
   );
