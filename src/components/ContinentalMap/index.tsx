@@ -19,9 +19,13 @@ export const ContinentalMap = () => {
   const mapRef = useRef<maplibregl.Map | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [continent, setContinent] = useState<ContinentKey | null>(null);
+  const [hoveredCountry, setHoveredCountry] = useState<string | null>(null);
+
   const theme = useTheme();
   const countryPolygonsQuery = useCountryPolygons();
-  const [hoveredCountry, setHoveredCountry] = useState<string | null>(null);
+
+  const mapApiKey = import.meta.env.VITE_MAP_STYLE_KEY;
+
 
   //initialising the map once
   useEffect(() => {
@@ -33,8 +37,8 @@ export const ContinentalMap = () => {
       container: containerRef.current,
       style:
         theme.palette.mode === "light"
-          ? "https://tiles.stadiamaps.com/styles/alidade_smooth.json"
-          : "https://tiles.stadiamaps.com/styles/alidade_smooth_dark.json",
+          ? `https://tiles.stadiamaps.com/styles/alidade_smooth.json?api_key=${mapApiKey}`
+          : `https://tiles.stadiamaps.com/styles/alidade_smooth_dark.json?api_key=${mapApiKey}`,
       center: [0, 0],
       zoom: 2,
       attributionControl: false,
@@ -52,8 +56,8 @@ export const ContinentalMap = () => {
     }
     mapRef.current.setStyle(
       theme.palette.mode === "light"
-        ? "https://tiles.stadiamaps.com/styles/alidade_smooth.json"
-        : "https://tiles.stadiamaps.com/styles/alidade_smooth_dark.json",
+        ? `https://tiles.stadiamaps.com/styles/alidade_smooth.json?api_key=${mapApiKey}`
+        : `https://tiles.stadiamaps.com/styles/alidade_smooth_dark.json?api_key=${mapApiKey}`,
     );
   }, [theme]);
 
