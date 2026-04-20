@@ -48,7 +48,7 @@ export const addCitiesLayer = (
     source: "cities",
     layout: {
       "text-field": ["get", "name"],
-      "text-size": 10,
+      "text-size": 12,
       "text-offset": [0, 1.2],
       "text-anchor": "top",
     },
