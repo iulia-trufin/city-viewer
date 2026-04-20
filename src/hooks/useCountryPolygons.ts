@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { getCountryPolygons } from "../api/CountryPolygons.ts";
-import type { CountryFeatureCollection } from "../types/CountryPolygonsProps.ts";
+import type { CountryFeatureCollection } from "../types/CountryPolygons.ts";
 
 export function useCountryPolygons() {
   return useQuery({

@@ -14,18 +14,21 @@ import {
 } from "@mui/material";
 import { useCountryPolygons } from "../../hooks/useCountryPolygons.ts";
 import { addCountryLayersMap } from "../../helpers/addCountryLayersMap.ts";
+import type { MapBounds } from "../../types/MapBounds.ts";
+import { useCityLocations } from "../../hooks/useCityLocations.ts";
+import { geoCitiesToGeoJSON } from "../../helpers/geoCitiesToGeoJSON.ts";
+import { addCitiesLayer } from "../../helpers/addCitiesLayer.ts";
 
 export const ContinentalMap = () => {
   const mapRef = useRef<maplibregl.Map | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [continent, setContinent] = useState<ContinentKey | null>(null);
   const [hoveredCountry, setHoveredCountry] = useState<string | null>(null);
-
+  const [bounds, setBounds] = useState<MapBounds | null>(null);
   const theme = useTheme();
   const countryPolygonsQuery = useCountryPolygons();
-
+  const cityLocationsQuery = useCityLocations(bounds);
   const mapApiKey = import.meta.env.VITE_MAP_STYLE_KEY;
-
 
   //initialising the map once
   useEffect(() => {
@@ -49,6 +52,30 @@ export const ContinentalMap = () => {
       mapRef.current?.remove();
     };
   }, []);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !continent) return;
+
+    const updateBounds = () => {
+      const mapBounds = map.getBounds();
+
+      setBounds({
+        north: mapBounds.getNorth(),
+        south: mapBounds.getSouth(),
+        east: mapBounds.getEast(),
+        west: mapBounds.getWest(),
+      });
+    };
+
+    map.on("moveend", updateBounds);
+
+    map.once("idle", updateBounds);
+
+    return () => {
+      map.off("moveend", updateBounds);
+    };
+  }, [continent]);
 
   useEffect(() => {
     if (!mapRef.current) {
@@ -154,6 +181,19 @@ export const ContinentalMap = () => {
       map.off("mouseleave", "countries-hit-area", handleMouseLeave);
     };
   }, [countryPolygonsQuery.data, theme]);
+
+  //add / update city plotting
+  useEffect(() => {
+    const map = mapRef.current;
+
+    if (!map || !cityLocationsQuery.data?.length) return;
+
+    const geojson = geoCitiesToGeoJSON(cityLocationsQuery.data);
+
+    map.once("idle", () => {
+      addCitiesLayer(map, geojson);
+    });
+  }, [cityLocationsQuery.data]);
 
   //if you use firefox you might wait a bit because of how its privacy is set up. fun
 
