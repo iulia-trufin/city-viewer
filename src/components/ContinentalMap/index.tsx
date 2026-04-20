@@ -1,33 +1,46 @@
-import { useEffect, useRef, useState } from "react";
-import maplibregl, { type MapLayerMouseEvent } from "maplibre-gl";
+import { useEffect, useRef } from "react";
+import maplibregl from "maplibre-gl";
 import type { ContinentKey } from "../../types/ContinentKey.ts";
 import { continentsCoords } from "../../constants/continentsCoords.ts";
-import { getContinentFromCoords } from "../../helpers/getContinentFromCoords.ts";
 import {
   Box,
   CircularProgress,
+  FormControlLabel,
   MenuItem,
   Select,
   Stack,
+  Switch,
   Typography,
   useTheme,
 } from "@mui/material";
 import { useCountryPolygons } from "../../hooks/useCountryPolygons.ts";
-import { addCountryLayersMap } from "../../helpers/addCountryLayersMap.ts";
-import type { MapBounds } from "../../types/MapBounds.ts";
 import { useCityLocations } from "../../hooks/useCityLocations.ts";
-import { geoCitiesToGeoJSON } from "../../helpers/geoCitiesToGeoJSON.ts";
-import { addCitiesLayer } from "../../helpers/addCitiesLayer.ts";
+import { useSessionStorageState } from "../../hooks/useSessionStorageState.ts";
+import { useDetectedContinent } from "../../hooks/useDetectedContinent.ts";
+import { useMapBounds } from "../../hooks/useMapBounds.ts";
+import { useCountryLayers } from "../../hooks/useCountryLayers.ts";
+import { useCitiesLayer } from "../../hooks/useCitiesLayer.ts";
 
 export const ContinentalMap = () => {
   const mapRef = useRef<maplibregl.Map | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const [continent, setContinent] = useState<ContinentKey | null>(null);
-  const [hoveredCountry, setHoveredCountry] = useState<string | null>(null);
-  const [bounds, setBounds] = useState<MapBounds | null>(null);
   const theme = useTheme();
   const countryPolygonsQuery = useCountryPolygons();
+  const [continent, setContinent] = useDetectedContinent();
+  const [showCities, setShowCities] = useSessionStorageState(
+    "showCities",
+    true,
+  );
+  const bounds = useMapBounds(mapRef, continent);
   const cityLocationsQuery = useCityLocations(bounds);
+  const hoveredCountry = useCountryLayers(
+    mapRef,
+    countryPolygonsQuery.data,
+    theme,
+  );
+
+  useCitiesLayer(mapRef, cityLocationsQuery.data, showCities);
+
   const mapApiKey = import.meta.env.VITE_MAP_STYLE_KEY;
 
   //initialising the map once
@@ -54,30 +67,6 @@ export const ContinentalMap = () => {
   }, []);
 
   useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !continent) return;
-
-    const updateBounds = () => {
-      const mapBounds = map.getBounds();
-
-      setBounds({
-        north: mapBounds.getNorth(),
-        south: mapBounds.getSouth(),
-        east: mapBounds.getEast(),
-        west: mapBounds.getWest(),
-      });
-    };
-
-    map.on("moveend", updateBounds);
-
-    map.once("idle", updateBounds);
-
-    return () => {
-      map.off("moveend", updateBounds);
-    };
-  }, [continent]);
-
-  useEffect(() => {
     if (!mapRef.current) {
       return;
     }
@@ -87,17 +76,6 @@ export const ContinentalMap = () => {
         : `https://tiles.stadiamaps.com/styles/alidade_smooth_dark.json?api_key=${mapApiKey}`,
     );
   }, [theme]);
-
-  //detect user's location
-  useEffect(() => {
-    navigator.geolocation.getCurrentPosition((pos) => {
-      const detected = getContinentFromCoords(
-        pos.coords.latitude,
-        pos.coords.longitude,
-      );
-      setContinent(detected);
-    });
-  }, []);
 
   //on changing the continent update the map
   useEffect(() => {
@@ -113,87 +91,6 @@ export const ContinentalMap = () => {
       essential: true,
     });
   }, [continent]);
-
-  //add / update country polygons
-  useEffect(() => {
-    const map = mapRef.current;
-    const countryPolygons = countryPolygonsQuery.data;
-
-    if (!map || !countryPolygons) {
-      return;
-    }
-
-    const handleMouseMove = (e: MapLayerMouseEvent) => {
-      const feature = e.features?.[0];
-      const countryName = feature?.properties && feature.properties.name;
-
-      setHoveredCountry(countryName);
-
-      map.getCanvas().style.cursor = "pointer";
-
-      map.setFilter("countries-hover-fill", [
-        "==",
-        ["get", "name"],
-        countryName ?? "",
-      ]);
-      map.setFilter("countries-hover-outline", [
-        "==",
-        ["get", "name"],
-        countryName ?? "",
-      ]);
-    };
-
-    const handleMouseLeave = () => {
-      setHoveredCountry(null);
-      map.getCanvas().style.cursor = "";
-
-      map.setFilter("countries-hover-fill", ["==", ["get", "name"], ""]);
-      map.setFilter("countries-hover-outline", ["==", ["get", "name"], ""]);
-    };
-
-    const addCountryLayers = () => {
-      const hasSource = !!map.getSource("countryPolygons");
-      const hasLayer = !!map.getLayer("countries-hit-area");
-      const existingSource = map.getSource("countryPolygons") as
-        | maplibregl.GeoJSONSource
-        | undefined;
-
-      if (!hasSource || !hasLayer) {
-        addCountryLayersMap(map, countryPolygons, theme);
-
-        map.on("mousemove", "countries-hit-area", handleMouseMove);
-
-        map.on("mouseleave", "countries-hit-area", handleMouseLeave);
-      } else {
-        if (existingSource) {
-          existingSource.setData(countryPolygons);
-        }
-      }
-    };
-
-    //if you ask me to use style.load instead of idle I'll beat you. I spent 2h debugging this
-
-    map.once("idle", addCountryLayers);
-
-    return () => {
-      map.off("idle", addCountryLayers);
-      map.off("mousemove", "countries-hit-area", handleMouseMove);
-      map.off("mouseleave", "countries-hit-area", handleMouseLeave);
-    };
-  }, [countryPolygonsQuery.data, theme]);
-
-  //add / update city plotting
-  useEffect(() => {
-    const map = mapRef.current;
-
-    if (!map || !cityLocationsQuery.data?.length) return;
-
-    const geojson = geoCitiesToGeoJSON(cityLocationsQuery.data);
-
-    map.once("idle", () => {
-      addCitiesLayer(map, geojson);
-    });
-  }, [cityLocationsQuery.data]);
 
   //if you use firefox you might wait a bit because of how its privacy is set up. fun
 
@@ -259,6 +156,15 @@ export const ContinentalMap = () => {
               </MenuItem>
             ))}
           </Select>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={showCities}
+                onChange={(e) => setShowCities(e.target.checked)}
+              />
+            }
+            label="Show cities"
+          />
         </Stack>
         <Box
           sx={{
