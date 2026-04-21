@@ -9,10 +9,10 @@ import { useCountries } from "../../hooks/useCountries.ts";
 import { countryColumns } from "../../constants/countryColumns.ts";
 import { useTableSearch } from "../../hooks/useTableSearch.ts";
 import { useTableExport } from "../../hooks/useTableExport.ts";
-import { useTableFilters } from "../../helpers/useTableFilters.ts";
 import { useState } from "react";
 import { countryFilters } from "../../constants/countryFilters.ts";
 import { FilterModal } from "../../components/FilterModal";
+import { useTableFilters } from "../../hooks/useTableFilters.ts";
 
 export const CountryPopulation = () => {
   const { order, orderBy, handleSort } = useSort<Country>();

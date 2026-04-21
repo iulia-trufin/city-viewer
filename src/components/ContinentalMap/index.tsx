@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import maplibregl from "maplibre-gl";
 import type { ContinentKey } from "../../types/ContinentKey.ts";
 import { continentsCoords } from "../../constants/continentsCoords.ts";
@@ -20,15 +20,27 @@ import { useDetectedContinent } from "../../hooks/useDetectedContinent.ts";
 import { useMapBounds } from "../../hooks/useMapBounds.ts";
 import { useCountryLayers } from "../../hooks/useCountryLayers.ts";
 import { useCitiesLayer } from "../../hooks/useCitiesLayer.ts";
+import { getLastWeekFilter } from "../../helpers/getLastWeekFilter.ts";
+import { useEarthquakes } from "../../hooks/useEarthquakes.ts";
+import moment from "moment";
+import { useEarthquakesLayer } from "../../hooks/useEarthquakesLayer.ts";
 
 export const ContinentalMap = () => {
+  const timeBucket = Math.floor(
+    moment().startOf("minute").valueOf() / (30 * 60 * 1000),
+  );
   const mapRef = useRef<maplibregl.Map | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const earthquakeFilter = useMemo(() => getLastWeekFilter(), [timeBucket]);
   const theme = useTheme();
   const countryPolygonsQuery = useCountryPolygons();
   const [continent, setContinent] = useDetectedContinent();
   const [showCities, setShowCities] = useSessionStorageState(
     "showCities",
+    true,
+  );
+  const [showEarthquakes, setShowEarthquakes] = useSessionStorageState(
+    "showEarthquakes",
     true,
   );
   const bounds = useMapBounds(mapRef, continent);
@@ -38,8 +50,14 @@ export const ContinentalMap = () => {
     countryPolygonsQuery.data,
     theme,
   );
+  const earthquakesQuery = useEarthquakes(earthquakeFilter);
 
   useCitiesLayer(mapRef, cityLocationsQuery.data, showCities);
+  const hoveredEarthquake = useEarthquakesLayer(
+    mapRef,
+    earthquakesQuery.data,
+    showEarthquakes,
+  );
 
   const mapApiKey = import.meta.env.VITE_MAP_STYLE_KEY;
 
@@ -165,6 +183,15 @@ export const ContinentalMap = () => {
             }
             label="Show cities"
           />
+          <FormControlLabel
+            control={
+              <Switch
+                checked={showEarthquakes}
+                onChange={(e) => setShowEarthquakes(e.target.checked)}
+              />
+            }
+            label="Show earthquakes"
+          />
         </Stack>
         <Box
           sx={{
@@ -184,7 +211,7 @@ export const ContinentalMap = () => {
               overflow: "hidden",
             }}
           />
-          {hoveredCountry && (
+          {(hoveredCountry || hoveredEarthquake) && (
             <Box
               sx={{
                 position: "absolute",
@@ -200,11 +227,32 @@ export const ContinentalMap = () => {
                     : "rgba(255,255,255,0.92)",
                 boxShadow: 3,
                 backdropFilter: "blur(6px)",
+                minWidth: 180,
               }}
             >
-              <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                {hoveredCountry}
-              </Typography>
+              <Stack spacing={1}>
+                {hoveredCountry && (
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                    {hoveredCountry}
+                  </Typography>
+                )}
+
+                {hoveredEarthquake && (
+                  <Box>
+                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                      M {hoveredEarthquake.mag}
+                    </Typography>
+
+                    <Typography variant="body2">
+                      {hoveredEarthquake.place}
+                    </Typography>
+
+                    <Typography variant="caption" color="text.secondary">
+                      {moment(hoveredEarthquake.time).fromNow()}
+                    </Typography>
+                  </Box>
+                )}
+              </Stack>
             </Box>
           )}
         </Box>

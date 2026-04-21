@@ -36,8 +36,10 @@ export const addCitiesLayer = (
         11,
         13,
       ],
-      "circle-color": "#ff5722",
-      "circle-opacity": 0.8,
+      "circle-color": "#90caf9",
+      "circle-opacity": 0.5,
+      "circle-stroke-width": 0.5,
+      "circle-stroke-color": "#ffffff",
     },
   });
 

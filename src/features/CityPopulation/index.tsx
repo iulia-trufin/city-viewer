@@ -6,7 +6,6 @@ import { sortData } from "../../helpers/sortData.ts";
 import { usePagination } from "../../hooks/usePagination.ts";
 import { useTableSearch } from "../../hooks/useTableSearch.ts";
 import { useTableExport } from "../../hooks/useTableExport.ts";
-import { useTableFilters } from "../../helpers/useTableFilters.ts";
 import { useMemo, useState } from "react";
 import { FilterModal } from "../../components/FilterModal";
 import { useCities } from "../../hooks/useCities.ts";
@@ -14,6 +13,7 @@ import type { City } from "../../types/City.ts";
 import { cityColumns } from "../../constants/cityColumns.ts";
 import { cityFilters } from "../../constants/cityFilters.ts";
 import { MultiSelectFilter } from "../../components/MultiSelectFilter";
+import { useTableFilters } from "../../hooks/useTableFilters.ts";
 
 export const CityPopulation = () => {
   const { order, orderBy, handleSort } = useSort<City>();
