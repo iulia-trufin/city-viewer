@@ -23,7 +23,7 @@ export const ThemeProviderWrapper = ({ children }: { children: ReactNode }) => {
     if (savedMode === "dark" || savedMode === "light") {
       return savedMode;
     }
-    return "light";
+    return "dark";
   });
   const onToggleTheme = () => {
     setMode((prevMode) => {
