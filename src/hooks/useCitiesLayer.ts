@@ -2,6 +2,7 @@ import { useEffect, type RefObject } from "react";
 import maplibregl from "maplibre-gl";
 import { geoCitiesToGeoJSON } from "../helpers/geoCitiesToGeoJSON.ts";
 import { addCitiesLayer } from "../helpers/addCitiesLayer.ts";
+import type { Theme } from "@mui/material";
 
 type CityLocations = Parameters<typeof geoCitiesToGeoJSON>[0];
 
@@ -9,6 +10,7 @@ export const useCitiesLayer = (
   mapRef: RefObject<maplibregl.Map | null>,
   cities: CityLocations | undefined,
   showCities: boolean,
+  theme: Theme,
 ) => {
   useEffect(() => {
     const map = mapRef.current;
@@ -43,5 +45,5 @@ export const useCitiesLayer = (
     return () => {
       map.off("idle", addOrUpdateCitiesLayer);
     };
-  }, [mapRef, cities, showCities]);
+  }, [mapRef, cities, showCities, theme]);
 };

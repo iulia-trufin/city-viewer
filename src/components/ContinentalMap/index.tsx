@@ -52,11 +52,12 @@ export const ContinentalMap = () => {
   );
   const earthquakesQuery = useEarthquakes(earthquakeFilter);
 
-  useCitiesLayer(mapRef, cityLocationsQuery.data, showCities);
+  useCitiesLayer(mapRef, cityLocationsQuery.data, showCities, theme);
   const hoveredEarthquake = useEarthquakesLayer(
     mapRef,
     earthquakesQuery.data,
     showEarthquakes,
+    theme,
   );
 
   const mapApiKey = import.meta.env.VITE_MAP_STYLE_KEY;

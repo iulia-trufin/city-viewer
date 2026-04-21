@@ -5,11 +5,13 @@ import type {
   EarthquakeProperties,
 } from "../types/Earthquakes";
 import { addEarthquakesLayer } from "../helpers/addEarthquakesLayer";
+import type { Theme } from "@mui/material";
 
 export const useEarthquakesLayer = (
   mapRef: RefObject<maplibregl.Map | null>,
   data: EarthquakeFeatureCollection | undefined,
   showEarthquakes: boolean,
+  theme: Theme,
 ) => {
   const [hoveredEarthquake, setHoveredEarthquake] =
     useState<EarthquakeProperties | null>(null);
@@ -51,7 +53,7 @@ export const useEarthquakesLayer = (
     return () => {
       map.off("mousemove", handleMouseMove);
     };
-  }, [mapRef, data, showEarthquakes]);
+  }, [mapRef, data, showEarthquakes, theme]);
 
   return hoveredEarthquake;
 };
